@@ -9,6 +9,8 @@ Due to package verification, the latest version below is the unpublished version
 however, it has to be formatted properly to pass verification tests.
 
 ## [Unreleased] - yyyy-mm-dd
+### Fixed
+- Fixed an issue causing InvalidOperationException when entering playmode with domain reload disabled. [ISXB-1208](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1208).
 
 ### Fixed
 - Fixed an issue where the prompt to enable the InputSystem backends would interrupt the import of large assets.
