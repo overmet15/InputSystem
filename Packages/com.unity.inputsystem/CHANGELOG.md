@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 Due to package verification, the latest version below is the unpublished version and the date is meaningless.
 however, it has to be formatted properly to pass verification tests.
 
-## [Unreleased] - yyyy-mm-dd
+## [1.17.0] - 2025-11-25
 
 ### Changed
 - Project-Wide Input Actions support can no longer be compiled out (removed the `UNITY_INPUT_SYSTEM_PROJECT_WIDE_ACTIONS` define). (ISX-2397)
