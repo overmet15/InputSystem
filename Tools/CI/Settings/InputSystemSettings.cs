@@ -113,6 +113,18 @@ public class InputSystemSettings : AnnotatedSettingsBase
                     "com.unity.polyspatial.xr",
                     "com.unity.xr.visionos" 
                 }
+            },
+            {
+                new Editor("6000.5",  ""),
+                new HashSet<string>()
+                {
+                    "com.unity.polyspatial",
+                    "com.unity.polyspatial.visionos",
+                    "com.unity.polyspatial.extensions",
+                    "com.unity.polyspatial.xr",
+                    "com.unity.xr.visionos",
+                    "com.unity.charactercontroller"
+                }
             }
         };
 
