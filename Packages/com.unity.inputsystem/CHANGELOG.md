@@ -20,6 +20,7 @@ however, it has to be formatted properly to pass verification tests.
 - Fixed the `Auto-Save` toggle button with some extra pixels to align the text in the window better.
 - Align title font size with toolbar style in `Input Action` window.
 - Updated Action Properties headers to use colors consistent with GameObject component headers.
+- Fixed misaligned Virtual Cursor when changing resolution [ISXB-1119](https://issuetracker.unity3d.com/product/unity/issues/guid/ISXB-1119)
 
 ### Added
 
