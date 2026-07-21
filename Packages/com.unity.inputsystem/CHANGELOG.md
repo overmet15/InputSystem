@@ -5,7 +5,7 @@ All notable changes to the input system package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - yyyy-mm-dd
+## [1.20.0] - 2026-07-21
 
 ### Fixed
 
@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed `PoseControl.isTracked` always returning false when read through non-optimized code paths (e.g. Input Debugger) due to `sizeInBits = 8` causing the value to be normalized as `1/255` instead of `1.0`.
 
 ### Changed
+
 - Action-level `IsPressed`, `WasPressedThisFrame`, and `WasReleasedThisFrame` for bindings to `Vector2Control` / `StickControl` no longer consult a per-control `pressPoint` on the vector (that field was removed). Use a `Press` interaction to set a custom threshold, or rely on `defaultButtonPressPoint`.
 - Removed 32-bit compilation check for HID on Windows players, which had no impact anymore. (ISX-2543)
 - Migrated sample scenes to use Universal Render Pipeline (URP) with Built-in Render Pipeline fallback shaders. The URP package is now required to run the samples. (ISX-2343)
@@ -47,7 +48,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 
 - Added `InputSettings.shortcutKeysUseActionPriority` to opt into action-priority based shortcut overlap resolution. `shortcutKeysConsumeInput` enables complexity-based resolution when action priority is off (matching previous develop behavior). When both are enabled, action priority takes precedence. Serialized `InputAction` priority values are always kept; the Priority field in the Input Actions editor is shown only when action priority resolution is enabled. Both settings default to off.
-
 - Support for entering the play mode with domain reload turned off (i.e. Faster Enter Playmode feature) [ISX-2411]
 
 ## [1.19.0] - 2026-02-24
