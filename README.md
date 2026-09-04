@@ -1,3 +1,7 @@
+# FORK NOTICES:
+This fork was made due to Input System missing functionality i needed, or having bugs, here is list of things done:
+- [[LINK](https://github.com/overmet15/InputSystem/commit/07d7c8adca9a54ce5e1a518d9558ae9f12345f86)] Fixed the Unity Remote support.
+
 # Unity Input System (Package)
 
 The Unity Input System package is an extension package to the [Unity Platform](https://unity.com/products/unity-platform) which provides a system to configure game actions and access input devices to interact with Unity content. It is intended to be a more powerful, flexible, and configurable replacement to [Unity Input API](https://docs.unity3d.com/ScriptReference/Input.html) (the `UnityEngine.Input` class).
