@@ -7,6 +7,7 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 ////FIXME: The UI is currently not reacting to pointers until they are moved after the UI module has been enabled. What needs to
 ////       happen is that point, trackedDevicePosition, and trackedDeviceOrientation have initial state checks. However, for touch,
 ////       we do *not* want to react to the initial value as then we also get presses (unlike with other pointers). Argh.
@@ -191,6 +192,8 @@ namespace UnityEngine.InputSystem.UI
             get => m_ScrollDeltaPerTick;
             set => m_ScrollDeltaPerTick = value;
         }
+
+        public event Action<GameObject, BaseEventData, Type> onEventExecuted;
 
         /// <summary>
         /// Called by <c>EventSystem</c> when the input module is made current.
@@ -534,7 +537,7 @@ namespace UnityEngine.InputSystem.UI
             if (wasMoved)
             {
                 for (var i = 0; i < eventData.hovered.Count; ++i)
-                    ExecuteEvents.Execute(eventData.hovered[i], eventData, ExecuteEvents.pointerMoveHandler);
+                    ExecuteEvent(eventData.hovered[i], eventData, ExecuteEvents.pointerMoveHandler);
             }
 
             // If we have no target or pointerEnter has been deleted,
@@ -543,7 +546,7 @@ namespace UnityEngine.InputSystem.UI
             if (currentPointerTarget == null || eventData.pointerEnter == null)
             {
                 for (var i = 0; i < eventData.hovered.Count; ++i)
-                    ExecuteEvents.Execute(eventData.hovered[i], eventData, ExecuteEvents.pointerExitHandler);
+                    ExecuteEvent(eventData.hovered[i], eventData, ExecuteEvents.pointerExitHandler);
 
                 eventData.hovered.Clear();
 
@@ -578,7 +581,7 @@ namespace UnityEngine.InputSystem.UI
 
                     eventData.fullyExited = current != commonRoot && eventData.pointerEnter != currentPointerTarget;
 
-                    ExecuteEvents.Execute(current.gameObject, eventData, ExecuteEvents.pointerExitHandler);
+                    ExecuteEvent(current.gameObject, eventData, ExecuteEvents.pointerExitHandler);
                     eventData.hovered.Remove(current.gameObject);
 
                     if (sendPointerHoverToParent)
@@ -606,9 +609,9 @@ namespace UnityEngine.InputSystem.UI
                     if (sendPointerHoverToParent && eventData.reentered)
                         break;
 
-                    ExecuteEvents.Execute(current.gameObject, eventData, ExecuteEvents.pointerEnterHandler);
+                    ExecuteEvent(current.gameObject, eventData, ExecuteEvents.pointerEnterHandler);
                     if (wasMoved)
-                        ExecuteEvents.Execute(current.gameObject, eventData, ExecuteEvents.pointerMoveHandler);
+                        ExecuteEvent(current.gameObject, eventData, ExecuteEvents.pointerMoveHandler);
                     eventData.hovered.Add(current.gameObject);
 
                     // stop when encountering an object with the pointerEnterHandler
@@ -657,7 +660,7 @@ namespace UnityEngine.InputSystem.UI
                     eventSystem.SetSelectedGameObject(null, eventData);
 
                 // Invoke OnPointerDown, if present.
-                var newPressed = ExecuteEvents.ExecuteHierarchy(currentOverGo, eventData, ExecuteEvents.pointerDownHandler);
+                var newPressed = ExecuteEventHierarchy(currentOverGo, eventData, ExecuteEvents.pointerDownHandler);
 
                 var pointerClickHandler = ExecuteEvents.GetEventHandler<IPointerClickHandler>(currentOverGo);
 
@@ -686,7 +689,7 @@ namespace UnityEngine.InputSystem.UI
                 eventData.pointerDrag = ExecuteEvents.GetEventHandler<IDragHandler>(currentOverGo);
 
                 if (eventData.pointerDrag != null)
-                    ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.initializePotentialDrag);
+                    ExecuteEvent(eventData.pointerDrag, eventData, ExecuteEvents.initializePotentialDrag);
             }
 
             // Button release.
@@ -719,22 +722,22 @@ namespace UnityEngine.InputSystem.UI
                 }
 
                 // Invoke OnPointerUp.
-                ExecuteEvents.Execute(eventData.pointerPress, eventData, ExecuteEvents.pointerUpHandler);
+                ExecuteEvent(eventData.pointerPress, eventData, ExecuteEvents.pointerUpHandler);
 
                 // Invoke OnPointerClick or OnDrop.
                 if (isClick)
                 {
-                    ExecuteEvents.Execute(eventData.pointerClick, eventData, ExecuteEvents.pointerClickHandler);
+                    ExecuteEvent(eventData.pointerClick, eventData, ExecuteEvents.pointerClickHandler);
                 }
                 else if (eventData.dragging && eventData.pointerDrag != null)
-                    ExecuteEvents.ExecuteHierarchy(currentOverGo, eventData, ExecuteEvents.dropHandler);
+                    ExecuteEventHierarchy(currentOverGo, eventData, ExecuteEvents.dropHandler);
 
                 eventData.eligibleForClick = false;
                 eventData.pointerPress = null;
                 eventData.rawPointerPress = null;
 
                 if (eventData.dragging && eventData.pointerDrag != null)
-                    ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.endDragHandler);
+                    ExecuteEvent(eventData.pointerDrag, eventData, ExecuteEvents.endDragHandler);
 
                 eventData.dragging = false;
                 eventData.pointerDrag = null;
@@ -761,7 +764,7 @@ namespace UnityEngine.InputSystem.UI
                                                                                                : 1))
                 {
                     // Started dragging. Invoke OnBeginDrag.
-                    ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.beginDragHandler);
+                    ExecuteEvent(eventData.pointerDrag, eventData, ExecuteEvents.beginDragHandler);
                     eventData.dragging = true;
                 }
             }
@@ -771,26 +774,26 @@ namespace UnityEngine.InputSystem.UI
                 // If we moved from our initial press object, process an up for that object.
                 if (eventData.pointerPress != eventData.pointerDrag)
                 {
-                    ExecuteEvents.Execute(eventData.pointerPress, eventData, ExecuteEvents.pointerUpHandler);
+                    ExecuteEvent(eventData.pointerPress, eventData, ExecuteEvents.pointerUpHandler);
 
                     eventData.eligibleForClick = false;
                     eventData.pointerPress = null;
                     eventData.rawPointerPress = null;
                 }
 
-                ExecuteEvents.Execute(eventData.pointerDrag, eventData, ExecuteEvents.dragHandler);
+                ExecuteEvent(eventData.pointerDrag, eventData, ExecuteEvents.dragHandler);
                 button.CopyPressStateFrom(eventData);
             }
         }
 
-        private static void ProcessPointerScroll(ref PointerModel pointer, PointerEventData eventData)
+        private void ProcessPointerScroll(ref PointerModel pointer, PointerEventData eventData)
         {
             var scrollDelta = pointer.scrollDelta;
             if (!Mathf.Approximately(scrollDelta.sqrMagnitude, 0.0f))
             {
                 eventData.scrollDelta = scrollDelta;
                 var scrollHandler = ExecuteEvents.GetEventHandler<IScrollHandler>(eventData.pointerEnter);
-                ExecuteEvents.ExecuteHierarchy(scrollHandler, eventData, ExecuteEvents.scrollHandler);
+                ExecuteEventHierarchy(scrollHandler, eventData, ExecuteEvents.scrollHandler);
             }
         }
 
@@ -800,7 +803,7 @@ namespace UnityEngine.InputSystem.UI
             if (eventSystem.currentSelectedGameObject != null)
             {
                 var data = GetBaseEventData();
-                ExecuteEvents.Execute(eventSystem.currentSelectedGameObject, data, ExecuteEvents.updateSelectedHandler);
+                ExecuteEvent(eventSystem.currentSelectedGameObject, data, ExecuteEvents.updateSelectedHandler);
                 usedSelectionChange = data.used;
             }
 
@@ -855,7 +858,7 @@ namespace UnityEngine.InputSystem.UI
 
                         if (IsMoveAllowed(eventData))
                         {
-                            ExecuteEvents.Execute(eventSystem.currentSelectedGameObject, eventData, ExecuteEvents.moveHandler);
+                            ExecuteEvent(eventSystem.currentSelectedGameObject, eventData, ExecuteEvents.moveHandler);
                             usedSelectionChange = eventData.used;
 
                             m_NavigationState.consecutiveMoveCount = m_NavigationState.consecutiveMoveCount + 1;
@@ -895,9 +898,9 @@ namespace UnityEngine.InputSystem.UI
                 data.device = m_SubmitCancelState.device;
 
                 if (cancelAction != null && cancelAction.WasPerformedThisDynamicUpdate())
-                    ExecuteEvents.Execute(eventSystem.currentSelectedGameObject, data, ExecuteEvents.cancelHandler);
+                    ExecuteEvent(eventSystem.currentSelectedGameObject, data, ExecuteEvents.cancelHandler);
                 if (!data.used && submitAction != null && submitAction.WasPerformedThisDynamicUpdate())
-                    ExecuteEvents.Execute(eventSystem.currentSelectedGameObject, data, ExecuteEvents.submitHandler);
+                    ExecuteEvent(eventSystem.currentSelectedGameObject, data, ExecuteEvents.submitHandler);
             }
         }
 
@@ -2418,6 +2421,20 @@ namespace UnityEngine.InputSystem.UI
                     state.OnFrameFinished();
                 }
             }
+        }
+
+        private bool ExecuteEvent<T>(GameObject target, BaseEventData eventData, ExecuteEvents.EventFunction<T> functor) where T : IEventSystemHandler
+        {
+            var result = ExecuteEvents.Execute(target, eventData, functor);
+            onEventExecuted?.Invoke(target, eventData, typeof(T));
+            return result;
+        }
+
+        private GameObject ExecuteEventHierarchy<T>(GameObject target, BaseEventData eventData, ExecuteEvents.EventFunction<T> functor) where T : IEventSystemHandler
+        {
+            var result = ExecuteEvents.ExecuteHierarchy(target, eventData, functor);
+            onEventExecuted?.Invoke(target, eventData, typeof(T));
+            return result;
         }
 
         public override int ConvertUIToolkitPointerId(PointerEventData sourcePointerData)
