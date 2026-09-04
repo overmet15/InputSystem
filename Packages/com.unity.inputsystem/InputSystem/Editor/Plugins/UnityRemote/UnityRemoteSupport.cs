@@ -63,7 +63,7 @@ namespace UnityEngine.InputSystem
 
         private static MethodInfo GetUnityRemoteAPIMethod(string methodName)
         {
-            var editorAssembly = typeof(EditorApplication).Assembly;
+            var editorAssembly = Assembly.Load("UnityEditor.GenericRemoteModule");
             var genericRemoteClass = editorAssembly.GetType("UnityEditor.Remote.GenericRemote");
             if (genericRemoteClass == null)
                 return null;
