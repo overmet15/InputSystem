@@ -193,6 +193,7 @@ namespace UnityEngine.InputSystem.UI
             set => m_ScrollDeltaPerTick = value;
         }
 
+        public event Action<GameObject, BaseEventData, Type> onEventAboutToExecute;
         public event Action<GameObject, BaseEventData, Type> onEventExecuted;
 
         /// <summary>
@@ -2425,6 +2426,7 @@ namespace UnityEngine.InputSystem.UI
 
         private bool ExecuteEvent<T>(GameObject target, BaseEventData eventData, ExecuteEvents.EventFunction<T> functor) where T : IEventSystemHandler
         {
+            onEventAboutToExecute?.Invoke(target, eventData, typeof(T));
             var result = ExecuteEvents.Execute(target, eventData, functor);
             onEventExecuted?.Invoke(target, eventData, typeof(T));
             return result;
@@ -2432,6 +2434,7 @@ namespace UnityEngine.InputSystem.UI
 
         private GameObject ExecuteEventHierarchy<T>(GameObject target, BaseEventData eventData, ExecuteEvents.EventFunction<T> functor) where T : IEventSystemHandler
         {
+            onEventAboutToExecute?.Invoke(target, eventData, typeof(T));
             var result = ExecuteEvents.ExecuteHierarchy(target, eventData, functor);
             onEventExecuted?.Invoke(target, eventData, typeof(T));
             return result;
