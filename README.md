@@ -1,7 +1,7 @@
 # FORK NOTICES:
 This fork was made due to Input System missing functionality i needed, or having bugs, here is list of things done:
 - [[LINK](https://github.com/overmet15/InputSystem/commit/07d7c8adca9a54ce5e1a518d9558ae9f12345f86)] Fixed the Unity Remote support.
-- [[LINK](https://github.com/overmet15/InputSystem/commit/758d9cfeef8a3fcf5623ee49075bc76f33bc59e5)] Added event on when a UI event is about to execute.
+- [[LINK](https://github.com/overmet15/InputSystem/commit/758d9cfeef8a3fcf5623ee49075bc76f33bc59e5)] Added event on when a UI event was executed.
 
 # Unity Input System (Package)
 
